@@ -9,4 +9,5 @@ class Comment(models.Model):
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
     timestamp = models.DateTimeField(default=datetime.datetime.now)
+    video = models.CharField(max_length=50)
 
