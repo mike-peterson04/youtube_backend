@@ -10,7 +10,10 @@ from .serializer import CommentSerializer
 class VideoComment(APIView):
     # retrieve all comments for a video
     def get(self, request, video_id):
-        comments = Comment.objects.filter(video=video_id)
+        try:
+            comments = Comment.objects.filter(video=video_id)
+        except ValueError:
+            return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
         serializer = CommentSerializer(comments,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -34,8 +37,12 @@ class CommentActions(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # delete comment
     def delete(self,request,video_id, comment_id):
-        comment = Comment.objects.get(pk=comment_id)
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except ValueError:
+            return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
         deleted_comment = CommentSerializer(comment)
         comment.delete()
         return Response(deleted_comment.data, status=status.HTTP_200_OK)
@@ -43,8 +50,13 @@ class CommentActions(APIView):
 
 
 class CommentReview(APIView):
+
+    # like or dislike
     def put(self, request, video_id, comment_id, action):
-        comment = Comment.objects.get(pk=comment_id)
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except ValueError:
+            return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
         if action == 'like':
             comment.likes += 1
             comment.save()
